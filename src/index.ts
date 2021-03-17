@@ -29,7 +29,9 @@ app.get('/', async (req: Request, res: Response) => {
 });
 
 /* ------------ Using Routes ------------ */
+import {router as bootRoute} from "./routes/botRouter" ;
 
+app.use('/bot', bootRoute);
 /* ------------ Start listening ------------ */
 const {PORT, HOST} = require("./config");
 
