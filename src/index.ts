@@ -5,6 +5,7 @@ import bodyParser from "body-parser";
 import cors = require('cors');
 import helmet = require('helmet');
 
+const {PORT, HOST} = require("./config");
 /* ------------ App Config ------------ */
 const app: Application = express();
 app.use(express.json());
@@ -32,8 +33,7 @@ app.get('/', async (req: Request, res: Response) => {
 import {router as bootRoute} from "./routes/botRouter" ;
 
 app.use('/bot', bootRoute);
-/* ------------ Start listening ------------ */
-const {PORT, HOST} = require("./config");
 
+/* ------------ Start listening ------------ */
 app.listen(PORT);
 console.log(`server running on  http://${HOST}:${PORT}`);
