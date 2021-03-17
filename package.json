@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "rm -rf dist && tsc",
     "setup": "npm install && npm update",
-    "dev": "NODE_ENV=development nodemon src/index.ts",
+    "start:dev": "NODE_ENV=development nodemon src/index.ts",
     "start": " npm run build && node src/index.ts",
     "start:prod": "npm run build && NODE_ENV=production node dist/index.js"
   },
