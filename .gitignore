@@ -4,3 +4,4 @@ build
 docs
 package-lock.json
 .env
+health_db.json

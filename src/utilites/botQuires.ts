@@ -27,7 +27,16 @@ export const BotCommands = {
         name: "want to do new check?"
     },
     quit: {name: '/quit'},
-    help: {name: '/help'}
+    help: {name: '/help'},
+
+}
 
 
+export function mappingBotCommands() {
+    let commandList = [];
+    let keys = Object.values(BotCommands);
+    for (let value of Object.values(keys)) {
+        commandList.push(value.name);
+    }
+    return commandList;
 }

@@ -1,8 +1,11 @@
 const {Telegraf, Markup, Extra} = require('telegraf')
 import {NextFunction} from "express";
-import {BotQuires, BotCommands} from "../utilites/botQuires";
+
+const LocalSession = require('telegraf-session-local');
+import {BotQuires, BotCommands, mappingBotCommands} from "../utilites/botQuires";
 
 const bot = new Telegraf(process.env.BOT_API);
+bot.use((new LocalSession({database: 'health_db.json'})).middleware())
 
 function initQuires() {
     for (let q of BotQuires.askUserHealth.firstQuires) {
