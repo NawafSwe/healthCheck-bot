@@ -76,8 +76,6 @@ function quitBot() {
         // Using context shortcut
         fn.leaveChat();
     });
-
-
 }
 
 
