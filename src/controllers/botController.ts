@@ -1,6 +1,6 @@
 const {Telegraf, Markup, Extra} = require('telegraf')
 import {NextFunction} from "express";
-import {BotQuires} from "../utilites/botQuires";
+import {BotQuires, BotCommands} from "../utilites/botQuires";
 
 const bot = new Telegraf(process.env.BOT_API);
 
@@ -33,6 +33,17 @@ export function initialStart() {
         )
     });
     initQuires();
+    // init help command
+    bot.command('help', async (fn: any) => {
+        await fn.replyWithHTML('<b>available commands</b>', Markup.keyboard([
+                [`${BotCommands.ratePhysical.name}`, `${BotCommands.rateShipment.name}`]
+            ])
+                .oneTime()
+                .resize()
+        )
+
+    });
+
     bot.launch();
 
 // Enable graceful stop
