@@ -139,9 +139,13 @@ export function initialStart() {
 
     // commands
     bot.command('/stat', (fn: any) => {
-        fn.replyWithHTML(`<b>your session has the following data</b> ${fn.session.ratedQuality}`);
+        getDataFromSession(fn);
 
     });
+    bot.command(`/clear`, (fn: any) => {
+        clearSession(fn);
+
+    })
 
     // quit bot will be triggered when user type /quit
     quitBot();
@@ -167,6 +171,11 @@ function quitBot() {
 
 }
 
+/**
+ *
+ * @param fn telegram context
+ */
+
 function checkPhysicalStatus(fn: any) {
     fn.replyWithHTML(`<b>How was the physical status of the product? before answering You can send photo of the current product 📷, and you can provide price </b>`, Markup.inlineKeyboard(
         [Markup.button.callback(`Good`, `good`), Markup.button.callback(`Bad`, 'bad')]
@@ -176,8 +185,31 @@ function checkPhysicalStatus(fn: any) {
 
 }
 
+/**
+ *
+ * @param fn telegram context
+ */
 function askForLocation(fn: any) {
     fn.replyWithHTML(`<b>are you satisfied delivery location? you can provide the location of the delivery before answering 🧭</b>`, Markup.inlineKeyboard([
         Markup.button.callback(`Yes`, `yes`), Markup.button.callback(`No`, `no`)
     ]));
+}
+
+function getDataFromSession(fn: any) {
+    let price = fn.session.price;
+    let photos = fn.session.productPhoto;
+    let location = fn.session.location;
+    let physicalQuality = fn.session.physicalQuality;
+    let deliverySatisfaction = fn.session.locationDelivery;
+    fn.replyWithMarkdown(`data from your session: \`${JSON.stringify(fn.session)}\``)
+
+}
+
+/**
+ *
+ * @param fn telegram context
+ */
+function clearSession(fn: any) {
+    fn.replyWithMarkdown(`Removing session from database: \`${JSON.stringify(fn.session)}\``)
+    fn.session = null;
 }
