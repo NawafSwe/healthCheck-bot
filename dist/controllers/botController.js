@@ -216,15 +216,14 @@ function getDataFromSession(fn) {
     var e_1, _a;
     return __awaiter(this, void 0, void 0, function* () {
         let price = fn.session.price;
-        let photos = fn.session.productPhoto;
         let location = fn.session.location;
         let physicalQuality = fn.session.physicalQuality;
         let deliverySatisfaction = fn.session.locationDelivery;
         let trackShipmentQuality = fn.session.ratedQuality;
-        //await fn.replyWithMarkdown(`data from your session: \`${JSON.stringify(fn.session)}\``);
         yield fn.replyWithHTML(`<b>overall quality rate: ${trackShipmentQuality}</b>`);
         yield fn.replyWithHTML(`<b>delivery satisfaction : ${deliverySatisfaction} </b>`);
         yield fn.replyWithHTML(`<b>price of the product: ${price == null ? `Not Given` : price}</b>`);
+        yield fn.replyWithHTML(`<b>product physical quality ${physicalQuality}</b>`);
         yield fn.replyWithLocation(location.latitude, location.longitude);
         yield fn.replyWithHTML(`<b>Sent photos of the product</b>`);
         if (fn.session.productPhoto) {
