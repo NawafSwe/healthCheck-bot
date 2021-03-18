@@ -16,7 +16,7 @@ bot.use(TelegrafQuestion({
 }));
 
 export function initialStart() {
-    bot.start((fn: any) => {
+    bot.use((fn: any) => {
             fn.replyWithHTML(`${BotQuires.welcomingUser.query}`);
             fn.replyWithHTML(BotQuires.instructions);
         }
@@ -25,7 +25,12 @@ export function initialStart() {
     // init help command
     bot.command('help', async (fn: any) => {
         await fn.replyWithHTML('<b>available commands</b>', Markup.inlineKeyboard(
-            [Markup.button.callback(`${BotCommands.doHealthCheck.name}`, `do_check`),]
+            [
+                Markup.button.callback(`${BotCommands.doHealthCheck.name}`, `do_check`),
+                Markup.button.callback(`view session`, `session`),
+                Markup.button.callback(`clear session`, `clear`)
+
+            ]
             )
                 .oneTime()
                 .resize()
@@ -33,6 +38,16 @@ export function initialStart() {
 
     });
     // triggered after help
+    // session actions
+    bot.action('session', async (fn: any) => {
+        await getDataFromSession(fn);
+
+    });
+    bot.action(`clear`, async (fn: any) => {
+        await clearSession(fn);
+
+    });
+
     // starting check process
     bot.action('do_check', async (fn: any, next: NextFunction) => {
         await fn.replyWithHTML(`<b>Rate quality of tracking the shipment from 0 to 5</b>`, Markup.inlineKeyboard([
@@ -136,17 +151,6 @@ export function initialStart() {
             fn.session.price = price;
         }
     });
-
-    // commands
-    bot.command('/stat', (fn: any) => {
-        getDataFromSession(fn);
-
-    });
-    bot.command(`/clear`, (fn: any) => {
-        clearSession(fn);
-
-    })
-
     // quit bot will be triggered when user type /quit
     quitBot();
 
@@ -167,8 +171,6 @@ function quitBot() {
         // Using context shortcut
         fn.leaveChat();
     });
-
-
 }
 
 /**
@@ -195,13 +197,13 @@ function askForLocation(fn: any) {
     ]));
 }
 
-function getDataFromSession(fn: any) {
-    let price = fn.session.price;
-    let photos = fn.session.productPhoto;
-    let location = fn.session.location;
-    let physicalQuality = fn.session.physicalQuality;
-    let deliverySatisfaction = fn.session.locationDelivery;
-    fn.replyWithMarkdown(`data from your session: \`${JSON.stringify(fn.session)}\``)
+async function getDataFromSession(fn: any) {
+    // let price = fn.session.price;
+    // let photos = fn.session.productPhoto;
+    // let location = fn.session.location;
+    // let physicalQuality = fn.session.physicalQuality;
+    // let deliverySatisfaction = fn.session.locationDelivery;
+    await fn.replyWithMarkdown(`data from your session: \`${JSON.stringify(fn.session)}\``);
 
 }
 
@@ -209,7 +211,7 @@ function getDataFromSession(fn: any) {
  *
  * @param fn telegram context
  */
-function clearSession(fn: any) {
-    fn.replyWithMarkdown(`Removing session from database: \`${JSON.stringify(fn.session)}\``)
+async function clearSession(fn: any) {
+    await fn.replyWithMarkdown(`Removing session from database: \`${JSON.stringify(fn.session)}\``)
     fn.session = null;
 }

@@ -32,7 +32,10 @@ function initialStart() {
     });
     // init help command
     bot.command('help', (fn) => __awaiter(this, void 0, void 0, function* () {
-        yield fn.replyWithHTML('<b>available commands</b>', Markup.inlineKeyboard([Markup.button.callback(`${botQuires_1.BotCommands.doHealthCheck.name}`, `do_check`),])
+        yield fn.replyWithHTML('<b>available commands</b>', Markup.inlineKeyboard([
+            Markup.button.callback(`${botQuires_1.BotCommands.doHealthCheck.name}`, `do_check`),
+            Markup.button.callback(`view session`, `session`)
+        ])
             .oneTime()
             .resize());
     }));
@@ -123,9 +126,13 @@ function initialStart() {
         }
     });
     // commands
-    bot.command('/stat', (fn) => {
-        fn.replyWithHTML(`<b>your session has the following data</b> ${fn.session.ratedQuality}`);
-    });
+    bot.action('session', (fn) => __awaiter(this, void 0, void 0, function* () {
+        console.log(`hi from action`);
+        yield getDataFromSession(fn);
+    }));
+    bot.command(`clear`, (fn) => __awaiter(this, void 0, void 0, function* () {
+        yield clearSession(fn);
+    }));
     // quit bot will be triggered when user type /quit
     quitBot();
     bot.launch();
@@ -145,12 +152,41 @@ function quitBot() {
         fn.leaveChat();
     });
 }
+/**
+ *
+ * @param fn telegram context
+ */
 function checkPhysicalStatus(fn) {
     fn.replyWithHTML(`<b>How was the physical status of the product? before answering You can send photo of the current product 📷, and you can provide price </b>`, Markup.inlineKeyboard([Markup.button.callback(`Good`, `good`), Markup.button.callback(`Bad`, 'bad')]));
     // proceeding  to location
 }
+/**
+ *
+ * @param fn telegram context
+ */
 function askForLocation(fn) {
     fn.replyWithHTML(`<b>are you satisfied delivery location? you can provide the location of the delivery before answering 🧭</b>`, Markup.inlineKeyboard([
         Markup.button.callback(`Yes`, `yes`), Markup.button.callback(`No`, `no`)
     ]));
+}
+function getDataFromSession(fn) {
+    return __awaiter(this, void 0, void 0, function* () {
+        // let price = fn.session.price;
+        // let photos = fn.session.productPhoto;
+        // let location = fn.session.location;
+        // let physicalQuality = fn.session.physicalQuality;
+        // let deliverySatisfaction = fn.session.locationDelivery;
+        console.log(`hi`);
+        yield fn.replyWithMarkdown(`data from your session: \`${JSON.stringify(fn.session)}\``);
+    });
+}
+/**
+ *
+ * @param fn telegram context
+ */
+function clearSession(fn) {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield fn.replyWithMarkdown(`Removing session from database: \`${JSON.stringify(fn.session)}\``);
+        fn.session = null;
+    });
 }
