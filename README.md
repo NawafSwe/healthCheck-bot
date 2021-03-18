@@ -1,7 +1,7 @@
 # healthCheck-bot for checking products health.
 
 <p>This is a simple project for Telegram bot using Nodejs and typescript </p>
-<p>this project runs locally on <b>localhost</b> </p>
+<p>this project runs locally on <b>localhost</b> and it is <b>dockerized</b> 🐳 </p>
 <hr/>
 <h1>Instructions:</h1>
 <ul>
