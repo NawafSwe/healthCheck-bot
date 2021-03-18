@@ -22,18 +22,11 @@ export function initialStart() {
         }
     );
 
-    bot.hears('hello', (fn: any) => {
-        fn.replyWithHTML(`${BotQuires.welcomingUser.query}`);
-        fn.replyWithHTML(BotQuires.instructions);
-
-    });
-
     // init help command
     bot.command('help', async (fn: any) => {
-        await fn.replyWithHTML('<b>available commands</b>', Markup.keyboard([
-                [`${BotCommands.ratePhysical.name}`, `${BotCommands.rateShipment.name}`],
-                [`${BotCommands.quit.name}`, `${BotCommands.doHealthCheck.name}`]
-            ])
+        await fn.replyWithHTML('<b>available commands</b>', Markup.keyboard(
+            [Markup.button.callback(`${BotCommands.doHealthCheck.name}`, `${BotCommands.doHealthCheck.name}`)]
+            )
                 .oneTime()
                 .resize()
         )
@@ -42,13 +35,13 @@ export function initialStart() {
     // triggered after help
 
     // starting check process
-    bot.hears(BotCommands.doHealthCheck.name, async (fn: any, next: NextFunction) => {
+    bot.action(BotCommands.doHealthCheck.name, async (fn: any, next: NextFunction) => {
         await fn.answerCbQuery();
-        let chosen = 0;
         fn.replyWithHTML(`<i>let us do fast check for the product 👍🏻</i>`);
 
         let quality = await fn.ask(`Rate from 0 to 5`);
         if (quality == null) {
+            console.log(`quality is ${quality.message.text}`);
             return next();
         }
         console.log(`quality is ${quality}`);

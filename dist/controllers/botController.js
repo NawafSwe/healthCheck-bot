@@ -30,27 +30,23 @@ function initialStart() {
         fn.replyWithHTML(`${botQuires_1.BotQuires.welcomingUser.query}`);
         fn.replyWithHTML(botQuires_1.BotQuires.instructions);
     });
-    bot.hears('hello', (fn) => {
-        fn.replyWithHTML(`${botQuires_1.BotQuires.welcomingUser.query}`);
-        fn.replyWithHTML(botQuires_1.BotQuires.instructions);
-    });
     // init help command
     bot.command('help', (fn) => __awaiter(this, void 0, void 0, function* () {
         yield fn.replyWithHTML('<b>available commands</b>', Markup.keyboard([
             [`${botQuires_1.BotCommands.ratePhysical.name}`, `${botQuires_1.BotCommands.rateShipment.name}`],
-            [`${botQuires_1.BotCommands.quit.name}`, `${botQuires_1.BotCommands.doHealthCheck.name}`]
+            [`${botQuires_1.BotCommands.quit.name}`, Markup.button.callback(`${botQuires_1.BotCommands.doHealthCheck.name}`)]
         ])
             .oneTime()
             .resize());
     }));
     // triggered after help
     // starting check process
-    bot.hears(botQuires_1.BotCommands.doHealthCheck.name, (fn, next) => __awaiter(this, void 0, void 0, function* () {
+    bot.action(botQuires_1.BotCommands.doHealthCheck.name, (fn, next) => __awaiter(this, void 0, void 0, function* () {
         yield fn.answerCbQuery();
-        let chosen = 0;
         fn.replyWithHTML(`<i>let us do fast check for the product 👍🏻</i>`);
         let quality = yield fn.ask(`Rate from 0 to 5`);
         if (quality == null) {
+            console.log(`quality is ${quality.message.text}`);
             return next();
         }
         console.log(`quality is ${quality}`);
