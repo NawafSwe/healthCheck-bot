@@ -50,7 +50,7 @@ app.use(express.static("docs"));
  */
 app.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     // rendering the docs page
-    res.render(`docs`);
+    res.render(`globals.html`);
 }));
 /* ------------ Start listening ------------ */
 app.listen(PORT, HOST, () => {

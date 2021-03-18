@@ -41,7 +41,7 @@ app.use(express.static("docs"));
  */
 app.get('/', async (req: Request, res: Response) => {
     // rendering the docs page
-    res.render(`docs`);
+    res.render(`globals.html`);
 });
 /* ------------ Start listening ------------ */
 app.listen(PORT, HOST, () => {

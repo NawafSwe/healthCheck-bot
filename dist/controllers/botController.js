@@ -176,14 +176,14 @@ exports.initialStart = initialStart;
  */
 function quitBot() {
     // quitting the bot
-    bot.command(botQuires_1.BotCommands.quit, (fn) => {
+    bot.command(botQuires_1.BotCommands.quit.name, (fn) => __awaiter(this, void 0, void 0, function* () {
         // Explicit usage
         console.log(`quit`);
-        fn.replyWithHTML(`<b>bye bye 👋🏻</b>`);
-        fn.telegram.leaveChat(fn.message.chat.id);
+        yield fn.replyWithHTML(`<b>bye bye 👋🏻</b>`);
+        yield fn.telegram.leaveChat(fn.message.chat.id);
         // Using context shortcut
         fn.leaveChat();
-    });
+    }));
 }
 /**
  * @function
@@ -216,16 +216,22 @@ function askForLocation(fn) {
 function getDataFromSession(fn) {
     var e_1, _a;
     return __awaiter(this, void 0, void 0, function* () {
-        let price = fn.session.price;
-        let location = fn.session.location;
-        let physicalQuality = fn.session.physicalQuality;
-        let deliverySatisfaction = fn.session.locationDelivery;
-        let trackShipmentQuality = fn.session.ratedQuality;
+        let price = fn.session.price == null ? `Empty` : fn.session.price;
+        let location = fn.session.location == null ? `Empty` : fn.session.location;
+        let physicalQuality = fn.session.physicalQuality == null ? `Empty` : fn.session.physicalQuality;
+        let deliverySatisfaction = fn.session.locationDelivery == null ? `Empty` : fn.session.locationDelivery;
+        let trackShipmentQuality = fn.session.ratedQuality == null ? `Empty` : fn.session.ratedQuality;
+        //displaying result to user
         yield fn.replyWithHTML(`<b>overall quality rate: ${trackShipmentQuality}</b>`);
         yield fn.replyWithHTML(`<b>delivery satisfaction : ${deliverySatisfaction} </b>`);
-        yield fn.replyWithHTML(`<b>price of the product: ${price == null ? `Not Given` : price}</b>`);
+        yield fn.replyWithHTML(`<b>price of the product: ${price}</b>`);
         yield fn.replyWithHTML(`<b>product physical quality ${physicalQuality}</b>`);
-        yield fn.replyWithLocation(location.latitude, location.longitude);
+        if (location == `Empty`) {
+            yield fn.replyWithHTML(`<b>there is no location</b>`);
+        }
+        else {
+            yield fn.replyWithLocation(location.latitude, location.longitude);
+        }
         yield fn.replyWithHTML(`<b>Sent photos of the product</b>`);
         if (fn.session.productPhoto) {
             try {
@@ -256,7 +262,13 @@ function getDataFromSession(fn) {
  */
 function clearSession(fn) {
     return __awaiter(this, void 0, void 0, function* () {
-        yield fn.replyWithMarkdown(`Removing session from database: \`${JSON.stringify(fn.session)}\``);
+        yield fn.replyWithMarkdown(`Removing session from database: \`
+$
+{
+    JSON.stringify(fn.session)
+}
+\`
+`);
         fn.session = null;
     });
 }

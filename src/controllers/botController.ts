@@ -169,7 +169,7 @@ export function initialStart() {
         }
     });
     // quit bot will be triggered when user type /quit
-      quitBot();
+    quitBot();
 
     // lunching bot
     bot.launch();
@@ -188,10 +188,11 @@ export function initialStart() {
  */
 function quitBot() {
     // quitting the bot
-    bot.command(BotCommands.quit.name, (fn: any) => {
+    bot.command(BotCommands.quit.name, async (fn: any) => {
         // Explicit usage
-        fn.replyWithHTML(`<b>bye bye 👋🏻</b>`);
-        fn.telegram.leaveChat(fn.message.chat.id);
+        console.log(`quit`)
+        await fn.replyWithHTML(`<b>bye bye 👋🏻</b>`);
+        await fn.telegram.leaveChat(fn.message.chat.id);
         // Using context shortcut
         fn.leaveChat();
     });
@@ -233,16 +234,23 @@ function askForLocation(fn: any) {
  * @description getting stored data from session and send it to user
  */
 async function getDataFromSession(fn: any) {
-    let price = fn.session.price;
-    let location = fn.session.location;
-    let physicalQuality = fn.session.physicalQuality;
-    let deliverySatisfaction = fn.session.locationDelivery;
-    let trackShipmentQuality = fn.session.ratedQuality;
+    let price = fn.session.price == null ? `Empty` : fn.session.price;
+    let location = fn.session.location == null ? `Empty` : fn.session.location;
+    let physicalQuality = fn.session.physicalQuality == null ? `Empty` : fn.session.physicalQuality;
+    let deliverySatisfaction = fn.session.locationDelivery == null ? `Empty` : fn.session.locationDelivery;
+    let trackShipmentQuality = fn.session.ratedQuality == null ? `Empty` : fn.session.ratedQuality;
+    //displaying result to user
     await fn.replyWithHTML(`<b>overall quality rate: ${trackShipmentQuality}</b>`)
     await fn.replyWithHTML(`<b>delivery satisfaction : ${deliverySatisfaction} </b>`);
-    await fn.replyWithHTML(`<b>price of the product: ${price == null ? `Not Given` : price}</b>`);
-    await fn.replyWithHTML(`<b>product physical quality ${physicalQuality}</b>`)
-    await fn.replyWithLocation(location.latitude, location.longitude);
+    await fn.replyWithHTML(`<b>price of the product: ${price}</b>`);
+    await fn.replyWithHTML(`<b>product physical quality ${physicalQuality}</b>`);
+
+    if (location == `Empty`) {
+        await fn.replyWithHTML(`<b>there is no location</b>`);
+
+    } else {
+        await fn.replyWithLocation(location.latitude, location.longitude);
+    }
     await fn.replyWithHTML(`<b>Sent photos of the product</b>`);
     if (fn.session.productPhoto) {
         for await(let photo of fn.session.productPhoto) {
@@ -254,6 +262,7 @@ async function getDataFromSession(fn: any) {
 
 }
 
+
 /**
  * @async
  * @function
@@ -262,6 +271,13 @@ async function getDataFromSession(fn: any) {
  * @description clear all the data stored in the session
  */
 async function clearSession(fn: any) {
-    await fn.replyWithMarkdown(`Removing session from database: \`${JSON.stringify(fn.session)}\``)
+    await fn.replyWithMarkdown(
+        `Removing session from database: \`
+$
+{
+    JSON.stringify(fn.session)
+}
+\`
+`)
     fn.session = null;
 }
