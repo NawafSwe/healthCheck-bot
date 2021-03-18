@@ -95,22 +95,36 @@ export function initialStart() {
         return next();
     });
 
+
     bot.action('good', async (fn: any, next: NextFunction) => {
         fn.session.physicalQuality = `good`;
         // next
         askForLocation(fn);
         return next();
     });
-    bot.action([`yes`, `no`], (fn: any) => {
+
+    bot.action('yes', (fn: any) => {
         if (fn.message.text == `yes`) {
-            console.log(`get no`);
-            fn.session.locationDelivry = fn.message.text;
-        } else if (fn.message.text == `no`) {
-            console.log(`get no`);
-            fn.session.locationDelivry = fn.message.text;
+            console.log(`get yes`);
+            fn.session.locationDelivry = `Yes`;
         }
+
+
     });
 
+    bot.action('no', (fn: any) => {
+        if (fn.message.text == `no`) {
+            console.log(`get no`);
+            fn.session.locationDelivry = `No`;
+        }
+
+
+    });
+
+// else if (fn.message.text == `no`) {
+//         console.log(`get no`);
+//         fn.session.locationDelivry = fn.message.text;
+//     }
 
     bot.action(`cancel`, (_: any) => {
         quitBot();
@@ -158,7 +172,7 @@ function quitBot() {
 }
 
 function checkPhysicalStatus(fn: any) {
-    fn.replyWithHTML(`<b>How was the physical status of the product? You can send photo of the current product 📷 </b>`, Markup.inlineKeyboard(
+    fn.replyWithHTML(`<b>How was the physical status of the product? before answering You can send photo of the current product 📷 </b>`, Markup.inlineKeyboard(
         [Markup.button.callback(`Good`, `good`), Markup.button.callback(`Bad`, 'bad')]
     ));
     // proceeding  to location
@@ -167,7 +181,7 @@ function checkPhysicalStatus(fn: any) {
 }
 
 function askForLocation(fn: any) {
-    fn.replyWithHTML(`<b>are you satisfied delivery location? you can provide the location of the delivery. 🧭</b>`, Markup.inlineKeyboard([
+    fn.replyWithHTML(`<b>are you satisfied delivery location? you can provide the location of the delivery before answering 🧭</b>`, Markup.inlineKeyboard([
         Markup.button.callback(`Yes`, `yes`), Markup.button.callback(`No`, `no`)
     ]));
 }
