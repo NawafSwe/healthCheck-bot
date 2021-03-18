@@ -169,7 +169,7 @@ export function initialStart() {
         }
     });
     // quit bot will be triggered when user type /quit
-    quitBot();
+      quitBot();
 
     // lunching bot
     bot.launch();
@@ -188,10 +188,10 @@ export function initialStart() {
  */
 function quitBot() {
     // quitting the bot
-    bot.command(BotCommands.quit, (fn: any) => {
+    bot.command(BotCommands.quit.name, (fn: any) => {
         // Explicit usage
+        fn.replyWithHTML(`<b>bye bye 👋🏻</b>`);
         fn.telegram.leaveChat(fn.message.chat.id);
-        fn.replyWithHTML(`<b>bye bye 👋🏻</b>`)
         // Using context shortcut
         fn.leaveChat();
     });

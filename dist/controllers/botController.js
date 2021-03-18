@@ -155,7 +155,7 @@ function initialStart() {
     });
     // for fetching price when user type any number for the prouct price
     bot.on(`text`, (fn) => {
-        if (fn.message.text) {
+        if (typeof fn.message.text === 'number') {
             fn.session.price = parseFloat(fn.message.text);
         }
     });
@@ -178,8 +178,9 @@ function quitBot() {
     // quitting the bot
     bot.command(botQuires_1.BotCommands.quit, (fn) => {
         // Explicit usage
-        fn.telegram.leaveChat(fn.message.chat.id);
+        console.log(`quit`);
         fn.replyWithHTML(`<b>bye bye 👋🏻</b>`);
+        fn.telegram.leaveChat(fn.message.chat.id);
         // Using context shortcut
         fn.leaveChat();
     });
