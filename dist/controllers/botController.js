@@ -103,7 +103,7 @@ function initialStart() {
         if (fn.message.photo) {
             console.log(`there is a photo`);
             fn.session.productPhoto = fn.message.photo;
-            fn.sendPhoto(fn.message.photo);
+            fn.replyWithPhoto(fn.session.productPhoto);
         }
     });
     // quit bot will be triggered when user type /quit
