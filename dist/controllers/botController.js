@@ -86,25 +86,40 @@ function initialStart() {
     bot.action('bad', (fn, next) => __awaiter(this, void 0, void 0, function* () {
         fn.session.physicalQuality = `bad`;
         // next
-        next();
+        askForLocation(fn);
+        return next();
     }));
     bot.action('good', (fn, next) => __awaiter(this, void 0, void 0, function* () {
         fn.session.physicalQuality = `good`;
         // next
+        askForLocation(fn);
         return next();
     }));
-    bot.command('/stat', (fn) => {
-        fn.replyWithHTML(`database has ${fn.session.ratedQuality}`);
+    bot.action([`yes`, `no`], (fn) => {
+        if (fn.message.text == `yes`) {
+            console.log(`get no`);
+            fn.session.locationDelivry = fn.message.text;
+        }
+        else if (fn.message.text == `no`) {
+            console.log(`get no`);
+            fn.session.locationDelivry = fn.message.text;
+        }
     });
     bot.action(`cancel`, (_) => {
         quitBot();
     });
-    bot.on(`photo`, (fn) => {
+    // on receiving location or photo
+    bot.on([`photo`, `location`], (fn) => {
         if (fn.message.photo) {
-            console.log(`there is a photo`);
             fn.session.productPhoto = fn.message.photo;
-            fn.replyWithPhoto(fn.session.productPhoto);
         }
+        if (fn.message.location) {
+            fn.session.location = fn.message.location;
+        }
+    });
+    // commands
+    bot.command('/stat', (fn) => {
+        fn.replyWithHTML(`database has ${fn.session.ratedQuality}`);
     });
     // quit bot will be triggered when user type /quit
     quitBot();
@@ -114,6 +129,7 @@ function initialStart() {
     process.once('SIGTERM', () => bot.stop('SIGTERM'));
 }
 exports.initialStart = initialStart;
+// helper functions
 function quitBot() {
     // quitting the bot
     bot.command(botQuires_1.BotCommands.quit, (fn) => {
@@ -125,6 +141,11 @@ function quitBot() {
     });
 }
 function checkPhysicalStatus(fn) {
-    fn.replyWithHTML(`<b>How was the physical status of the product? </b>`, Markup.inlineKeyboard([Markup.button.callback(`Good`, `good`), Markup.button.callback(`Bad`, 'bad')]));
-    fn.replyWithHTML(`<b> You can send photo of the current product</b>`);
+    fn.replyWithHTML(`<b>How was the physical status of the product? You can send photo of the current product 📷 </b>`, Markup.inlineKeyboard([Markup.button.callback(`Good`, `good`), Markup.button.callback(`Bad`, 'bad')]));
+    // proceeding  to location
+}
+function askForLocation(fn) {
+    fn.replyWithHTML(`<b>are you satisfied delivery location? you can provide the location of the delivery. 🧭</b`, Markup.inlineKeyboard([
+        Markup.button.callback(`Yes`, `yes`), Markup.button.callback(`No`, `no`)
+    ]));
 }

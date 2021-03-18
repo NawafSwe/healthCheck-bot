@@ -91,12 +91,14 @@ export function initialStart() {
     bot.action('bad', async (fn: any, next: NextFunction) => {
         fn.session.physicalQuality = `bad`;
         // next
-        next();
+        askForLocation(fn);
+        return next();
     });
 
     bot.action('good', async (fn: any, next: NextFunction) => {
         fn.session.physicalQuality = `good`;
         // next
+        askForLocation(fn);
         return next();
     });
     bot.action([`yes`, `no`], (fn: any) => {
@@ -160,12 +162,12 @@ function checkPhysicalStatus(fn: any) {
         [Markup.button.callback(`Good`, `good`), Markup.button.callback(`Bad`, 'bad')]
     ));
     // proceeding  to location
-    askForLocation(fn);
+
 
 }
 
 function askForLocation(fn: any) {
-    fn.replyWithHTML(`<b>are you satisfied delivery location? you can provide the location of the delivery. 🧭</b`, Markup.inlineKeyboard([
+    fn.replyWithHTML(`<b>are you satisfied delivery location? you can provide the location of the delivery. 🧭</b>`, Markup.inlineKeyboard([
         Markup.button.callback(`Yes`, `yes`), Markup.button.callback(`No`, `no`)
     ]));
 }
