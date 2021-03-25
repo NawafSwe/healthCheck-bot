@@ -4,12 +4,11 @@
  * @requires Telegraf,Markup,Extra,TelegrafContext
  * @requires NextFunction
  * @requires TelegrafQuestion
+ * @requires Context
  */
-
 
 // importing dependencies
 const {Telegraf, Markup, Extra, TelegrafContext} = require('telegraf');
-
 import {NextFunction} from "express";
 import TelegrafQuestion from "telegraf-question";
 import {Context} from "telegraf/typings/context";
@@ -28,6 +27,7 @@ bot.use(TelegrafQuestion({
 }));
 
 /**
+ * @async
  * @function
  * @namespace initialStart
  * @description function that init the start of bot and lunch it to work

@@ -16,20 +16,20 @@
 <li> you can view project files by typing localhost:`PORT Number you are use` and it will move you to a web page holds all files of project documented</li>
 </ul>
 <h1>Bot Commands</h1>
-<p>the bot have two simple commands</p>
+<p>the bot have simple commands</p>
 <ol>
-<li>`/start` which will give you a welcome message and another sub command called `/help`</li>
-<li>the command `/help` will provide you three different options are:
+<li>`/start` which will give you a welcome message and another sub command called `/commands`</li>
+<li>the command `/commands` will provide you four different options are:
 <ul>
-<li>
-`want to do new check?` which will start asking user about health and quality of product.
+<li> `/help` which will give you nested inline commands
+    <ol> 
+        <li>`want to do new check?` which will start asking user about health and quality of product.</li>
+        <li>`view session` it will send to the user the last session he saved on the chat that contains the experience information.</li>
+        <li>`clear session` it will clear the session for the user.</li>
+    </ol>
 </li>
-<li>
-`view session` it will send to the user the last session he saved on the chat that contains the experience information.
-</li>
-<li>
-`clear session` it will clear the session for the user.
-</li>
+
+
 </ul>
 </li>
 <li>`/quit` to quit the bot chat</li>

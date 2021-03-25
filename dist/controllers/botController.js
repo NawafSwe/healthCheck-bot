@@ -5,6 +5,7 @@
  * @requires Telegraf,Markup,Extra,TelegrafContext
  * @requires NextFunction
  * @requires TelegrafQuestion
+ * @requires Context
  */
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -42,6 +43,7 @@ bot.use(telegraf_question_1.default({
     cancelTimeout: 300000 // 5 min
 }));
 /**
+ * @async
  * @function
  * @namespace initialStart
  * @description function that init the start of bot and lunch it to work
@@ -137,7 +139,7 @@ function initialStart() {
             yield quitBot(fn);
         }));
         // on receiving location or photo from user regarding product photo or deliveryLocation
-        bot.on([`photo`, `location`, `text`], (fn) => {
+        bot.on([`photo`, `location`], (fn) => {
             if (fn.message.photo) {
                 fn.session.productPhoto = fn.message.photo;
             }
@@ -146,8 +148,6 @@ function initialStart() {
             }
         });
         bot.on(`text`, (fn) => __awaiter(this, void 0, void 0, function* () {
-            console.log(typeof fn.message);
-            console.log(fn.message);
             if (typeof fn.message.text === 'number') {
                 console.log(`price`);
                 fn.session.price = parseFloat(fn.message.text.trim());
