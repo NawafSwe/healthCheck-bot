@@ -100,13 +100,13 @@ function initialStart() {
         bot.action('upload', (fn, next) => __awaiter(this, void 0, void 0, function* () {
             fn.session.physicalQuality = `bad`;
             // next
-            // await askForLocation(fn);
+            yield optionalPhoto(fn);
             return next();
         }));
         bot.action('good', (fn, next) => __awaiter(this, void 0, void 0, function* () {
             fn.session.physicalQuality = `good`;
             // next
-            // await askForLocation(fn);
+            yield optionalPhoto(fn);
             return next();
         }));
         bot.action('uploadPhoto', (fn) => __awaiter(this, void 0, void 0, function* () {
@@ -118,11 +118,20 @@ function initialStart() {
         // if user had bad experience with the delivery location or not
         bot.action('yes', (fn, next) => __awaiter(this, void 0, void 0, function* () {
             fn.session.locationDelivery = `Yes`;
+            yield optionalLocation(fn);
             return next();
         }));
         bot.action('no', (fn, next) => __awaiter(this, void 0, void 0, function* () {
             fn.session.locationDelivery = `No`;
+            yield optionalLocation(fn);
             return next();
+        }));
+        //after location finish
+        bot.action('uploadLocation', (fn) => __awaiter(this, void 0, void 0, function* () {
+            yield indicateFinish(fn);
+        }));
+        bot.action('skipLocation', (fn) => __awaiter(this, void 0, void 0, function* () {
+            yield indicateFinish(fn);
         }));
         // if user want to cancel and quit
         bot.action(`cancel`, (fn) => __awaiter(this, void 0, void 0, function* () {
@@ -172,13 +181,9 @@ function quitBot(fn) {
  */
 function checkPhysicalStatus(fn) {
     return __awaiter(this, void 0, void 0, function* () {
-        yield fn.replyWithHTML(`<b>How was the physical status of the product? before answering You can send photo of the current product 📷, and you can provide price </b>`, Markup.inlineKeyboard([
+        yield fn.replyWithHTML(`<b>How was the physical status of the product?</b>`, Markup.inlineKeyboard([
             [Markup.button.callback(`Good`, `good`), Markup.button.callback(`Bad`, 'bad')],
             [Markup.button.callback('cancel', 'cancel')]
-        ]));
-        yield fn.replyWithHTML(`<b>Would like to provide a picture? if yes please send it and press okay if you would like to skip just press skip</b>`, Markup.inlineKeyboard([
-            Markup.button.callback(`Okay`, 'uploadPhoto'),
-            Markup.button.callback(`Skip`, `skipPhoto`),
         ]));
     });
 }
@@ -189,10 +194,12 @@ function checkPhysicalStatus(fn) {
  * @description asking user about the location
  */
 function askForLocation(fn) {
-    fn.replyWithHTML(`<b>are you satisfied delivery location? you can provide the location of the delivery before answering 🧭</b>`, Markup.inlineKeyboard([
-        [Markup.button.callback(`Yes`, `yes`), Markup.button.callback(`No`, `no`)],
-        [Markup.button.callback('cancel', 'cancel')]
-    ]));
+    return __awaiter(this, void 0, void 0, function* () {
+        yield fn.replyWithHTML(`<b>are you satisfied delivery location?</b>`, Markup.inlineKeyboard([
+            [Markup.button.callback(`Yes`, `yes`), Markup.button.callback(`No`, `no`)],
+            [Markup.button.callback('cancel', 'cancel')]
+        ]));
+    });
 }
 /**
  * @async
@@ -256,7 +263,7 @@ function clearSession(fn) {
 }
 function indicateFinish(fn) {
     return __awaiter(this, void 0, void 0, function* () {
-        yield fn.replyWithHTML(`<b>Great We Finshed thank you for your feedback you can view the last operation you did by typing view session</b>`);
+        yield fn.replyWithHTML(`<b>Great We Finished thank you for your feedback you can view the last operation you did by typing view session</b>`);
     });
 }
 function initChoices() {
@@ -283,5 +290,17 @@ function initChoices() {
 }
 function optionalPhoto(fn) {
     return __awaiter(this, void 0, void 0, function* () {
+        yield fn.replyWithHTML(`<b>Would like to provide a picture? if yes please send it and press okay if you would like to skip just press skip</b>`, Markup.inlineKeyboard([
+            Markup.button.callback(`Okay`, 'uploadPhoto'),
+            Markup.button.callback(`Skip`, `skipPhoto`),
+        ]));
+    });
+}
+function optionalLocation(fn) {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield fn.replyWithHTML(`<b>can you provide the location? you can skip or send location and click Okay to proceed</b>`, Markup.inlineKeyboard([
+            Markup.button.callback(`Okay`, 'uploadLocation'),
+            Markup.button.callback(`Skip`, `skipLocation`),
+        ]));
     });
 }

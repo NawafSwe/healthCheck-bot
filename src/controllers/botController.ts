@@ -286,7 +286,7 @@ async function optionalPhoto(fn: Context) {
 }
 
 async function optionalLocation(fn: Context) {
-    await fn.replyWithHTML(`<b>can you provide the location? you can skip or send location and click Okay to proceed</b>`, Markup.inlinekeyboard([
+    await fn.replyWithHTML(`<b>can you provide the location? you can skip or send location and click Okay to proceed</b>`, Markup.inlineKeyboard([
         Markup.button.callback(`Okay`, 'uploadLocation'),
         Markup.button.callback(`Skip`, `skipLocation`),
     ]));
