@@ -31,7 +31,7 @@ exports.initialStart = void 0;
 const { Telegraf, Markup, Extra, TelegrafContext } = require('telegraf');
 const telegraf_question_1 = __importDefault(require("telegraf-question"));
 const botQuires_1 = require("../utilites/botQuires");
-const LocalSession = require('telegraf-session-local');
+const LocalSession = require("telegraf-session-local");
 // creating bot
 const bot = new Telegraf(process.env.TOKEN);
 // config bot
@@ -47,128 +47,101 @@ bot.use(telegraf_question_1.default({
  * @description function that init the start of bot and lunch it to work
  */
 function initialStart() {
-    // starting with wlecoming message
-    bot.start((fn) => __awaiter(this, void 0, void 0, function* () {
-        yield fn.replyWithHTML(`${botQuires_1.BotQuires.welcomingUser.query}`);
-        yield fn.replyWithHTML(botQuires_1.BotQuires.instructions);
-        yield fn.replyWithHTML(`<b> to quit bot write /out</b>`);
-    }));
-    // init help command that contains sub actions
-    bot.command('help', (fn) => __awaiter(this, void 0, void 0, function* () {
-        yield fn.replyWithHTML('<b>available commands</b>', Markup.inlineKeyboard([
-            Markup.button.callback(`${botQuires_1.BotCommands.doHealthCheck.name}`, `do_check`),
-            Markup.button.callback(`view session`, `session`),
-            Markup.button.callback(`clear session`, `clear`)
-        ])
-            .oneTime()
-            .resize());
-    }));
-    // quit bot will be triggered when user type /quit
-    bot.command('out', (fn) => __awaiter(this, void 0, void 0, function* () {
-        yield quitBot(fn);
-    }));
-    // triggered after help
-    // session actions
-    // getting session data
-    bot.action('session', (fn) => __awaiter(this, void 0, void 0, function* () {
-        yield getDataFromSession(fn);
-    }));
-    // removing session data
-    bot.action(`clear`, (fn) => __awaiter(this, void 0, void 0, function* () {
-        yield clearSession(fn);
-    }));
-    // starting check process with asking the question about the product
-    bot.action('do_check', (fn, next) => __awaiter(this, void 0, void 0, function* () {
-        yield fn.replyWithHTML(`<b>Rate quality of tracking the shipment from 0 to 5</b>`, Markup.inlineKeyboard([
-            [
-                Markup.button.callback(botQuires_1.AnswersQuires.ratingQuality.zero.num, botQuires_1.AnswersQuires.ratingQuality.zero.num),
-                Markup.button.callback(botQuires_1.AnswersQuires.ratingQuality.one.num, botQuires_1.AnswersQuires.ratingQuality.one.num),
-                Markup.button.callback(botQuires_1.AnswersQuires.ratingQuality.two.num, botQuires_1.AnswersQuires.ratingQuality.two.num),
-                Markup.button.callback(botQuires_1.AnswersQuires.ratingQuality.three.num, botQuires_1.AnswersQuires.ratingQuality.three.num),
-                Markup.button.callback(botQuires_1.AnswersQuires.ratingQuality.four.num, botQuires_1.AnswersQuires.ratingQuality.four.num),
-                Markup.button.callback(botQuires_1.AnswersQuires.ratingQuality.five.num, botQuires_1.AnswersQuires.ratingQuality.five.num)
-            ],
-            [Markup.button.callback('cancel', 'cancel')]
-        ]));
-    }));
-    // action for user interaction after choosing rating
-    // if he choose 0 or 1 or ... ect to 5
-    bot.action(botQuires_1.AnswersQuires.ratingQuality.zero.num, (fn, next) => __awaiter(this, void 0, void 0, function* () {
-        fn.session.ratedQuality = botQuires_1.AnswersQuires.ratingQuality.zero.num;
-        checkPhysicalStatus(fn);
-        return next();
-    }));
-    bot.action(botQuires_1.AnswersQuires.ratingQuality.one.num, (fn, next) => __awaiter(this, void 0, void 0, function* () {
-        fn.session.ratedQuality = botQuires_1.AnswersQuires.ratingQuality.one.num;
-        yield checkPhysicalStatus(fn);
-        return next();
-    }));
-    bot.action(botQuires_1.AnswersQuires.ratingQuality.two.num, (fn, next) => __awaiter(this, void 0, void 0, function* () {
-        fn.session.ratedQuality = botQuires_1.AnswersQuires.ratingQuality.two.num;
-        yield checkPhysicalStatus(fn);
-        return next();
-    }));
-    bot.action(botQuires_1.AnswersQuires.ratingQuality.three.num, (fn, next) => __awaiter(this, void 0, void 0, function* () {
-        fn.session.ratedQuality = botQuires_1.AnswersQuires.ratingQuality.three.num;
-        yield checkPhysicalStatus(fn);
-        return next();
-    }));
-    bot.action(botQuires_1.AnswersQuires.ratingQuality.four.num, (fn, next) => __awaiter(this, void 0, void 0, function* () {
-        fn.session.ratedQuality = botQuires_1.AnswersQuires.ratingQuality.four.num;
-        yield checkPhysicalStatus(fn);
-        return next();
-    }));
-    bot.action(botQuires_1.AnswersQuires.ratingQuality.five.num, (fn, next) => __awaiter(this, void 0, void 0, function* () {
-        fn.session.ratedQuality = botQuires_1.AnswersQuires.ratingQuality.five.num;
-        yield checkPhysicalStatus(fn);
-        return next();
-    }));
-    // if user had some problems with the physical status of the product or not
-    bot.action('bad', (fn, next) => __awaiter(this, void 0, void 0, function* () {
-        fn.session.physicalQuality = `bad`;
-        // next
-        yield askForLocation(fn);
-        return next();
-    }));
-    bot.action('good', (fn, next) => __awaiter(this, void 0, void 0, function* () {
-        fn.session.physicalQuality = `good`;
-        // next
-        yield askForLocation(fn);
-        return next();
-    }));
-    // if user had bad experience with the delivery location or not
-    bot.action('yes', (fn, next) => __awaiter(this, void 0, void 0, function* () {
-        fn.session.locationDelivery = `Yes`;
-        return next();
-    }));
-    bot.action('no', (fn, next) => __awaiter(this, void 0, void 0, function* () {
-        fn.session.locationDelivery = `No`;
-        return next();
-    }));
-    // if user want to cancel and quit
-    bot.action(`cancel`, (fn) => __awaiter(this, void 0, void 0, function* () {
-        yield quitBot(fn);
-    }));
-    // on receiving location or photo from user regarding product photo or deliveryLocation
-    bot.on([`photo`, `location`], (fn) => {
-        if (fn.message.photo) {
-            fn.session.productPhoto = fn.message.photo;
-        }
-        if (fn.message.location) {
-            fn.session.location = fn.message.location;
-        }
+    return __awaiter(this, void 0, void 0, function* () {
+        // starting with welcoming message
+        bot.start((fn) => __awaiter(this, void 0, void 0, function* () {
+            yield fn.replyWithHTML(`${botQuires_1.BotQuires.welcomingUser.query}`);
+            yield fn.replyWithHTML(botQuires_1.BotQuires.instructions);
+            yield fn.replyWithHTML(`<b> to quit bot write /out</b>`);
+        }));
+        // init help command that contains sub actions
+        bot.command('help', (fn) => __awaiter(this, void 0, void 0, function* () {
+            yield fn.replyWithHTML('<b>available commands</b>', Markup.inlineKeyboard([
+                Markup.button.callback(`${botQuires_1.BotCommands.doHealthCheck.name}`, `do_check`),
+                Markup.button.callback(`view session`, `session`),
+                Markup.button.callback(`clear session`, `clear`)
+            ])
+                .oneTime()
+                .resize());
+        }));
+        // quit bot will be triggered when user type /quit
+        bot.command('out', (fn) => __awaiter(this, void 0, void 0, function* () {
+            yield quitBot(fn);
+        }));
+        // triggered after help
+        // session actions
+        // getting session data
+        bot.action('session', (fn) => __awaiter(this, void 0, void 0, function* () {
+            yield getDataFromSession(fn);
+        }));
+        // removing session data
+        bot.action(`clear`, (fn) => __awaiter(this, void 0, void 0, function* () {
+            yield clearSession(fn);
+        }));
+        // starting check process with asking the question about the product
+        bot.action('do_check', (fn, next) => __awaiter(this, void 0, void 0, function* () {
+            yield fn.replyWithHTML(`<b>Rate quality of tracking the shipment from 0 to 5</b>`, Markup.inlineKeyboard([
+                [
+                    Markup.button.callback(botQuires_1.AnswersQuires.ratingQuality.zero.num, botQuires_1.AnswersQuires.ratingQuality.zero.num),
+                    Markup.button.callback(botQuires_1.AnswersQuires.ratingQuality.one.num, botQuires_1.AnswersQuires.ratingQuality.one.num),
+                    Markup.button.callback(botQuires_1.AnswersQuires.ratingQuality.two.num, botQuires_1.AnswersQuires.ratingQuality.two.num),
+                    Markup.button.callback(botQuires_1.AnswersQuires.ratingQuality.three.num, botQuires_1.AnswersQuires.ratingQuality.three.num),
+                    Markup.button.callback(botQuires_1.AnswersQuires.ratingQuality.four.num, botQuires_1.AnswersQuires.ratingQuality.four.num),
+                    Markup.button.callback(botQuires_1.AnswersQuires.ratingQuality.five.num, botQuires_1.AnswersQuires.ratingQuality.five.num)
+                ],
+                [Markup.button.callback('cancel', 'cancel')]
+            ]));
+        }));
+        // action for user interaction after choosing rating
+        // if he choose 0 or 1 or ... ect to 5
+        yield initChoices();
+        // if user had some problems with the physical status of the product or not
+        bot.action('bad', (fn, next) => __awaiter(this, void 0, void 0, function* () {
+            fn.session.physicalQuality = `bad`;
+            // next
+            yield askForLocation(fn);
+            return next();
+        }));
+        bot.action('good', (fn, next) => __awaiter(this, void 0, void 0, function* () {
+            fn.session.physicalQuality = `good`;
+            // next
+            yield askForLocation(fn);
+            return next();
+        }));
+        // if user had bad experience with the delivery location or not
+        bot.action('yes', (fn, next) => __awaiter(this, void 0, void 0, function* () {
+            fn.session.locationDelivery = `Yes`;
+            return next();
+        }));
+        bot.action('no', (fn, next) => __awaiter(this, void 0, void 0, function* () {
+            fn.session.locationDelivery = `No`;
+            return next();
+        }));
+        // if user want to cancel and quit
+        bot.action(`cancel`, (fn) => __awaiter(this, void 0, void 0, function* () {
+            yield quitBot(fn);
+        }));
+        // on receiving location or photo from user regarding product photo or deliveryLocation
+        bot.on([`photo`, `location`], (fn) => {
+            if (fn.message.photo) {
+                fn.session.productPhoto = fn.message.photo;
+            }
+            if (fn.message.location) {
+                fn.session.location = fn.message.location;
+            }
+        });
+        // for fetching price when user type any number for the prouct price
+        bot.on(`text`, (fn) => {
+            if (typeof fn.message.text === 'number') {
+                fn.session.price = parseFloat(fn.message.text);
+            }
+        });
+        // lunching bot
+        bot.launch();
+        // Enable graceful stop
+        process.once('SIGINT', () => bot.stop('SIGINT'));
+        process.once('SIGTERM', () => bot.stop('SIGTERM'));
     });
-    // for fetching price when user type any number for the prouct price
-    bot.on(`text`, (fn) => {
-        if (typeof fn.message.text === 'number') {
-            fn.session.price = parseFloat(fn.message.text);
-        }
-    });
-    // lunching bot
-    bot.launch();
-    // Enable graceful stop
-    process.once('SIGINT', () => bot.stop('SIGINT'));
-    process.once('SIGTERM', () => bot.stop('SIGTERM'));
 }
 exports.initialStart = initialStart;
 /* ----------------------Helper Functions ----------------------*/
@@ -267,5 +240,31 @@ function clearSession(fn) {
     return __awaiter(this, void 0, void 0, function* () {
         yield fn.replyWithMarkdown(`Removing session from database: ${JSON.stringify(fn.session)}`);
         fn.session = null;
+    });
+}
+function indicateFinish(fn) {
+    return __awaiter(this, void 0, void 0, function* () {
+    });
+}
+function initChoices() {
+    var e_2, _a;
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            for (var _b = __asyncValues(Object.entries(botQuires_1.AnswersQuires.ratingQuality)), _c; _c = yield _b.next(), !_c.done;) {
+                let [_, value] = _c.value;
+                bot.action(value.num, (fn, next) => __awaiter(this, void 0, void 0, function* () {
+                    fn.session.ratedQuality = value.num;
+                    yield checkPhysicalStatus(fn);
+                    return next();
+                }));
+            }
+        }
+        catch (e_2_1) { e_2 = { error: e_2_1 }; }
+        finally {
+            try {
+                if (_c && !_c.done && (_a = _b.return)) yield _a.call(_b);
+            }
+            finally { if (e_2) throw e_2.error; }
+        }
     });
 }

@@ -6,13 +6,17 @@
  * @requires TelegrafQuestion
  */
 
+
 // importing dependencies
 const {Telegraf, Markup, Extra, TelegrafContext} = require('telegraf');
+
 import {NextFunction} from "express";
 import TelegrafQuestion from "telegraf-question";
+import {Context} from "telegraf/typings/context";
+import {SessionContext} from "telegraf/typings/session";
 import {AnswersQuires, BotCommands, BotQuires} from "../utilites/botQuires";
+import LocalSession = require('telegraf-session-local');
 
-const LocalSession = require('telegraf-session-local');
 // creating bot
 const bot = new Telegraf(process.env.TOKEN);
 
@@ -29,9 +33,9 @@ bot.use(TelegrafQuestion({
  * @namespace initialStart
  * @description function that init the start of bot and lunch it to work
  */
-export function initialStart() {
-    // starting with wlecoming message
-    bot.start(async (fn: any) => {
+export async function initialStart() {
+    // starting with welcoming message
+    bot.start(async (fn: Context) => {
             await fn.replyWithHTML(`${BotQuires.welcomingUser.query}`);
             await fn.replyWithHTML(BotQuires.instructions);
             await fn.replyWithHTML(`<b> to quit bot write /out</b>`);
@@ -39,7 +43,7 @@ export function initialStart() {
     );
 
     // init help command that contains sub actions
-    bot.command('help', async (fn: any) => {
+    bot.command('help', async (fn: Context) => {
         await fn.replyWithHTML('<b>available commands</b>', Markup.inlineKeyboard(
             [
                 Markup.button.callback(`${BotCommands.doHealthCheck.name}`, `do_check`),
@@ -53,7 +57,7 @@ export function initialStart() {
     });
 
     // quit bot will be triggered when user type /quit
-    bot.command('out', async (fn: any) => {
+    bot.command('out', async (fn: Context) => {
         await quitBot(fn);
     });
 
@@ -61,17 +65,17 @@ export function initialStart() {
     // session actions
 
     // getting session data
-    bot.action('session', async (fn: any) => {
+    bot.action('session', async (fn: Context) => {
         await getDataFromSession(fn);
     });
 
     // removing session data
-    bot.action(`clear`, async (fn: any) => {
+    bot.action(`clear`, async (fn: Context) => {
         await clearSession(fn);
     });
 
     // starting check process with asking the question about the product
-    bot.action('do_check', async (fn: any, next: NextFunction) => {
+    bot.action('do_check', async (fn: Context, next: NextFunction) => {
         await fn.replyWithHTML(`<b>Rate quality of tracking the shipment from 0 to 5</b>`, Markup.inlineKeyboard([
             [
                 Markup.button.callback(AnswersQuires.ratingQuality.zero.num, AnswersQuires.ratingQuality.zero.num),
@@ -89,42 +93,7 @@ export function initialStart() {
 
     // action for user interaction after choosing rating
     // if he choose 0 or 1 or ... ect to 5
-    bot.action(AnswersQuires.ratingQuality.zero.num, async (fn: any, next: NextFunction) => {
-        fn.session.ratedQuality = AnswersQuires.ratingQuality.zero.num;
-        checkPhysicalStatus(fn);
-        return next();
-    });
-
-    bot.action(AnswersQuires.ratingQuality.one.num, async (fn: any, next: NextFunction) => {
-        fn.session.ratedQuality = AnswersQuires.ratingQuality.one.num;
-        await checkPhysicalStatus(fn);
-        return next();
-    });
-
-    bot.action(AnswersQuires.ratingQuality.two.num, async (fn: any, next: NextFunction) => {
-        fn.session.ratedQuality = AnswersQuires.ratingQuality.two.num;
-        await checkPhysicalStatus(fn);
-        return next();
-    });
-    bot.action(AnswersQuires.ratingQuality.three.num, async (fn: any, next: NextFunction) => {
-        fn.session.ratedQuality = AnswersQuires.ratingQuality.three.num;
-        await checkPhysicalStatus(fn);
-        return next();
-    });
-
-    bot.action(AnswersQuires.ratingQuality.four.num, async (fn: any, next: NextFunction) => {
-        fn.session.ratedQuality = AnswersQuires.ratingQuality.four.num;
-        await checkPhysicalStatus(fn);
-        return next();
-    });
-
-    bot.action(AnswersQuires.ratingQuality.five.num, async (fn: any, next: NextFunction) => {
-        fn.session.ratedQuality = AnswersQuires.ratingQuality.five.num;
-        await checkPhysicalStatus(fn);
-
-        return next();
-    });
-
+    await initChoices()
     // if user had some problems with the physical status of the product or not
 
     bot.action('bad', async (fn: any, next: NextFunction) => {
@@ -273,6 +242,17 @@ async function clearSession(fn: any) {
     fn.session = null;
 }
 
-async function indicateFinish() {
+async function indicateFinish(fn: any) {
 
+}
+
+
+async function initChoices() {
+    for await(let [_, value] of Object.entries(AnswersQuires.ratingQuality)) {
+        bot.action(value.num, async (fn: any, next: NextFunction) => {
+            fn.session.ratedQuality = value.num;
+            await checkPhysicalStatus(fn);
+            return next();
+        });
+    }
 }

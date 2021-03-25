@@ -53,7 +53,8 @@ app.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     res.render(`globals.html`);
 }));
 /* ------------ Start listening ------------ */
-app.listen(PORT, HOST, () => {
+app.listen(PORT, HOST, () => __awaiter(void 0, void 0, void 0, function* () {
     console.log(`server running on  http://${HOST}:${PORT}`);
-});
-botController_1.initialStart();
+    yield botController_1.initialStart();
+    console.log(`bot lunched successfully`);
+}));

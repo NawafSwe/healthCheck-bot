@@ -44,7 +44,9 @@ app.get('/', async (req: Request, res: Response) => {
     res.render(`globals.html`);
 });
 /* ------------ Start listening ------------ */
-app.listen(PORT, HOST, () => {
+app.listen(PORT, HOST, async () => {
     console.log(`server running on  http://${HOST}:${PORT}`);
+    await initialStart();
+    console.log(`bot lunched successfully`);
 });
-initialStart();
+
