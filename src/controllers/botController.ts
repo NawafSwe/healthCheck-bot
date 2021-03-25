@@ -101,14 +101,14 @@ export async function initialStart() {
     bot.action('upload', async (fn: any, next: NextFunction) => {
         fn.session.physicalQuality = `bad`;
         // next
-        // await askForLocation(fn);
+        await optionalPhoto(fn);
         return next();
     });
 
     bot.action('good', async (fn: any, next: NextFunction) => {
         fn.session.physicalQuality = `good`;
         // next
-        // await askForLocation(fn);
+        await optionalPhoto(fn);
         return next();
     });
 
@@ -122,12 +122,22 @@ export async function initialStart() {
     // if user had bad experience with the delivery location or not
     bot.action('yes', async (fn: any, next: NextFunction) => {
         fn.session.locationDelivery = `Yes`;
+        await optionalLocation(fn);
         return next();
     });
 
     bot.action('no', async (fn: any, next: NextFunction) => {
         fn.session.locationDelivery = `No`;
+        await optionalLocation(fn)
         return next();
+    });
+
+    //after location finish
+    bot.action('uploadLocation', async (fn: Context) => {
+        await indicateFinish(fn);
+    });
+    bot.action('skipLocation', async (fn: Context) => {
+        await indicateFinish(fn);
     });
 
     // if user want to cancel and quit
@@ -182,16 +192,11 @@ async function quitBot(fn: any) {
  */
 
 async function checkPhysicalStatus(fn: any) {
-    await fn.replyWithHTML(`<b>How was the physical status of the product? before answering You can send photo of the current product 📷, and you can provide price </b>`, Markup.inlineKeyboard([
+    await fn.replyWithHTML(`<b>How was the physical status of the product?</b>`, Markup.inlineKeyboard([
             [Markup.button.callback(`Good`, `good`), Markup.button.callback(`Bad`, 'bad')],
             [Markup.button.callback('cancel', 'cancel')]
         ]
     ));
-    await fn.replyWithHTML(`<b>Would like to provide a picture? if yes please send it and press okay if you would like to skip just press skip</b>`, Markup.inlineKeyboard([
-        Markup.button.callback(`Okay`, 'uploadPhoto'),
-        Markup.button.callback(`Skip`, `skipPhoto`),
-
-    ]));
 }
 
 /**
@@ -200,8 +205,8 @@ async function checkPhysicalStatus(fn: any) {
  *  * @param fn telegram context
  * @description asking user about the location
  */
-function askForLocation(fn: any) {
-    fn.replyWithHTML(`<b>are you satisfied delivery location? you can provide the location of the delivery before answering 🧭</b>`, Markup.inlineKeyboard([
+async function askForLocation(fn: any) {
+    await fn.replyWithHTML(`<b>are you satisfied delivery location?</b>`, Markup.inlineKeyboard([
             [Markup.button.callback(`Yes`, `yes`), Markup.button.callback(`No`, `no`)],
             [Markup.button.callback('cancel', 'cancel')]
         ]
@@ -257,7 +262,7 @@ async function clearSession(fn: any) {
 }
 
 async function indicateFinish(fn: any) {
-    await fn.replyWithHTML(`<b>Great We Finshed thank you for your feedback you can view the last operation you did by typing view session</b>`)
+    await fn.replyWithHTML(`<b>Great We Finished thank you for your feedback you can view the last operation you did by typing view session</b>`)
 
 }
 
@@ -273,4 +278,16 @@ async function initChoices() {
 }
 
 async function optionalPhoto(fn: Context) {
+    await fn.replyWithHTML(`<b>Would like to provide a picture? if yes please send it and press okay if you would like to skip just press skip</b>`, Markup.inlineKeyboard([
+        Markup.button.callback(`Okay`, 'uploadPhoto'),
+        Markup.button.callback(`Skip`, `skipPhoto`),
+
+    ]));
+}
+
+async function optionalLocation(fn: Context) {
+    await fn.replyWithHTML(`<b>can you provide the location? you can skip or send location and click Okay to proceed</b>`, Markup.inlinekeyboard([
+        Markup.button.callback(`Okay`, 'uploadLocation'),
+        Markup.button.callback(`Skip`, `skipLocation`),
+    ]));
 }
