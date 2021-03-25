@@ -7,7 +7,7 @@
  */
 
 // importing dependencies
-const {Telegraf, Markup, Extra, TelegrafContext} = require('telegraf')
+const {Telegraf, Markup, Extra, TelegrafContext} = require('telegraf');
 import {NextFunction} from "express";
 import TelegrafQuestion from "telegraf-question";
 import {AnswersQuires, BotCommands, BotQuires} from "../utilites/botQuires";
@@ -31,9 +31,10 @@ bot.use(TelegrafQuestion({
  */
 export function initialStart() {
     // starting with wlecoming message
-    bot.start((fn: any) => {
-            fn.replyWithHTML(`${BotQuires.welcomingUser.query}`);
-            fn.replyWithHTML(BotQuires.instructions);
+    bot.start(async (fn: any) => {
+            await fn.replyWithHTML(`${BotQuires.welcomingUser.query}`);
+            await fn.replyWithHTML(BotQuires.instructions);
+            await fn.replyWithHTML(`<b> to quit bot write /out</b>`);
         }
     );
 
@@ -50,6 +51,12 @@ export function initialStart() {
                 .resize()
         )
     });
+
+    // quit bot will be triggered when user type /quit
+    bot.command('out', async (fn: any) => {
+        await quitBot(fn);
+    });
+
     // triggered after help
     // session actions
 
@@ -146,8 +153,8 @@ export function initialStart() {
     });
 
     // if user want to cancel and quit
-    bot.action(`cancel`, (_: any) => {
-        quitBot();
+    bot.action(`cancel`, async (fn: any) => {
+        await quitBot(fn);
     });
 
     // on receiving location or photo from user regarding product photo or deliveryLocation
@@ -168,9 +175,6 @@ export function initialStart() {
             fn.session.price = parseFloat(fn.message.text);
         }
     });
-    // quit bot will be triggered when user type /quit
-    quitBot();
-
     // lunching bot
     bot.launch();
 
@@ -186,16 +190,10 @@ export function initialStart() {
  * @namespace quitBot
  * @description quit the bot and leave the chat
  */
-function quitBot() {
+async function quitBot(fn: any) {
     // quitting the bot
-    bot.command(BotCommands.quit.name, async (fn: any) => {
-        // Explicit usage
-        console.log(`quit`)
-        await fn.replyWithHTML(`<b>bye bye 👋🏻</b>`);
-        await fn.telegram.leaveChat(fn.message.chat.id);
-        // Using context shortcut
-        fn.leaveChat();
-    });
+    // Explicit usage
+    await fn.replyWithHTML(`<b>bye bye 👋🏻</b>`);
 }
 
 /**
@@ -206,12 +204,11 @@ function quitBot() {
  */
 
 function checkPhysicalStatus(fn: any) {
-    fn.replyWithHTML(`<b>How was the physical status of the product? before answering You can send photo of the current product 📷, and you can provide price </b>`, Markup.inlineKeyboard(
-        [Markup.button.callback(`Good`, `good`), Markup.button.callback(`Bad`, 'bad')]
+    fn.replyWithHTML(`<b>How was the physical status of the product? before answering You can send photo of the current product 📷, and you can provide price </b>`, Markup.inlineKeyboard([
+        [Markup.button.callback(`Good`, `good`), Markup.button.callback(`Bad`, 'bad')],
+        [Markup.button.callback('cancel', 'cancel')]]
     ));
     // proceeding  to location
-
-
 }
 
 /**
@@ -222,8 +219,10 @@ function checkPhysicalStatus(fn: any) {
  */
 function askForLocation(fn: any) {
     fn.replyWithHTML(`<b>are you satisfied delivery location? you can provide the location of the delivery before answering 🧭</b>`, Markup.inlineKeyboard([
-        Markup.button.callback(`Yes`, `yes`), Markup.button.callback(`No`, `no`)
-    ]));
+            [Markup.button.callback(`Yes`, `yes`), Markup.button.callback(`No`, `no`)],
+            [Markup.button.callback('cancel', 'cancel')]
+        ]
+    ));
 }
 
 /**
@@ -234,6 +233,7 @@ function askForLocation(fn: any) {
  * @description getting stored data from session and send it to user
  */
 async function getDataFromSession(fn: any) {
+
     let price = fn.session.price == null ? `Empty` : fn.session.price;
     let location = fn.session.location == null ? `Empty` : fn.session.location;
     let physicalQuality = fn.session.physicalQuality == null ? `Empty` : fn.session.physicalQuality;
@@ -259,9 +259,7 @@ async function getDataFromSession(fn: any) {
     } else {
         await fn.replyWithHTML(`<b>No Photos were found sorry 😓</b>`)
     }
-
 }
-
 
 /**
  * @async
@@ -271,13 +269,10 @@ async function getDataFromSession(fn: any) {
  * @description clear all the data stored in the session
  */
 async function clearSession(fn: any) {
-    await fn.replyWithMarkdown(
-        `Removing session from database: \`
-$
-{
-    JSON.stringify(fn.session)
-}
-\`
-`)
+    await fn.replyWithMarkdown(`Removing session from database: ${JSON.stringify(fn.session)}`)
     fn.session = null;
+}
+
+async function indicateFinish() {
+
 }

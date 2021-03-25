@@ -48,10 +48,11 @@ bot.use(telegraf_question_1.default({
  */
 function initialStart() {
     // starting with wlecoming message
-    bot.start((fn) => {
-        fn.replyWithHTML(`${botQuires_1.BotQuires.welcomingUser.query}`);
-        fn.replyWithHTML(botQuires_1.BotQuires.instructions);
-    });
+    bot.start((fn) => __awaiter(this, void 0, void 0, function* () {
+        yield fn.replyWithHTML(`${botQuires_1.BotQuires.welcomingUser.query}`);
+        yield fn.replyWithHTML(botQuires_1.BotQuires.instructions);
+        yield fn.replyWithHTML(`<b> to quit bot write /out</b>`);
+    }));
     // init help command that contains sub actions
     bot.command('help', (fn) => __awaiter(this, void 0, void 0, function* () {
         yield fn.replyWithHTML('<b>available commands</b>', Markup.inlineKeyboard([
@@ -61,6 +62,10 @@ function initialStart() {
         ])
             .oneTime()
             .resize());
+    }));
+    // quit bot will be triggered when user type /quit
+    bot.command('out', (fn) => __awaiter(this, void 0, void 0, function* () {
+        yield quitBot(fn);
     }));
     // triggered after help
     // session actions
@@ -141,9 +146,9 @@ function initialStart() {
         return next();
     }));
     // if user want to cancel and quit
-    bot.action(`cancel`, (_) => {
-        quitBot();
-    });
+    bot.action(`cancel`, (fn) => __awaiter(this, void 0, void 0, function* () {
+        yield quitBot(fn);
+    }));
     // on receiving location or photo from user regarding product photo or deliveryLocation
     bot.on([`photo`, `location`], (fn) => {
         if (fn.message.photo) {
@@ -159,8 +164,6 @@ function initialStart() {
             fn.session.price = parseFloat(fn.message.text);
         }
     });
-    // quit bot will be triggered when user type /quit
-    quitBot();
     // lunching bot
     bot.launch();
     // Enable graceful stop
@@ -174,16 +177,12 @@ exports.initialStart = initialStart;
  * @namespace quitBot
  * @description quit the bot and leave the chat
  */
-function quitBot() {
-    // quitting the bot
-    bot.command(botQuires_1.BotCommands.quit.name, (fn) => __awaiter(this, void 0, void 0, function* () {
+function quitBot(fn) {
+    return __awaiter(this, void 0, void 0, function* () {
+        // quitting the bot
         // Explicit usage
-        console.log(`quit`);
         yield fn.replyWithHTML(`<b>bye bye 👋🏻</b>`);
-        yield fn.telegram.leaveChat(fn.message.chat.id);
-        // Using context shortcut
-        fn.leaveChat();
-    }));
+    });
 }
 /**
  * @function
@@ -192,7 +191,10 @@ function quitBot() {
  * @description asking user about the physical status of the product
  */
 function checkPhysicalStatus(fn) {
-    fn.replyWithHTML(`<b>How was the physical status of the product? before answering You can send photo of the current product 📷, and you can provide price </b>`, Markup.inlineKeyboard([Markup.button.callback(`Good`, `good`), Markup.button.callback(`Bad`, 'bad')]));
+    fn.replyWithHTML(`<b>How was the physical status of the product? before answering You can send photo of the current product 📷, and you can provide price </b>`, Markup.inlineKeyboard([
+        [Markup.button.callback(`Good`, `good`), Markup.button.callback(`Bad`, 'bad')],
+        [Markup.button.callback('cancel', 'cancel')]
+    ]));
     // proceeding  to location
 }
 /**
@@ -203,7 +205,8 @@ function checkPhysicalStatus(fn) {
  */
 function askForLocation(fn) {
     fn.replyWithHTML(`<b>are you satisfied delivery location? you can provide the location of the delivery before answering 🧭</b>`, Markup.inlineKeyboard([
-        Markup.button.callback(`Yes`, `yes`), Markup.button.callback(`No`, `no`)
+        [Markup.button.callback(`Yes`, `yes`), Markup.button.callback(`No`, `no`)],
+        [Markup.button.callback('cancel', 'cancel')]
     ]));
 }
 /**
@@ -262,13 +265,7 @@ function getDataFromSession(fn) {
  */
 function clearSession(fn) {
     return __awaiter(this, void 0, void 0, function* () {
-        yield fn.replyWithMarkdown(`Removing session from database: \`
-$
-{
-    JSON.stringify(fn.session)
-}
-\`
-`);
+        yield fn.replyWithMarkdown(`Removing session from database: ${JSON.stringify(fn.session)}`);
         fn.session = null;
     });
 }
