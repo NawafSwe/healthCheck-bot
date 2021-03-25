@@ -143,18 +143,15 @@ function initialStart() {
             yield quitBot(fn);
         }));
         // on receiving location or photo from user regarding product photo or deliveryLocation
-        bot.on([`photo`, `location`], (fn) => {
+        bot.on([`photo`, `location`, `text`], (fn) => {
             if (fn.message.photo) {
                 fn.session.productPhoto = fn.message.photo;
             }
             if (fn.message.location) {
                 fn.session.location = fn.message.location;
             }
-        });
-        // for fetching price when user type any number for the prouct price
-        bot.on(`text`, (fn) => {
             if (typeof fn.message.text === 'number') {
-                fn.session.price = parseFloat(fn.message.text);
+                fn.session.price = parseFloat(fn.message.text.trim());
             }
         });
         // lunching bot
@@ -216,40 +213,45 @@ function askForLocation(fn) {
 function getDataFromSession(fn) {
     var e_1, _a;
     return __awaiter(this, void 0, void 0, function* () {
-        let price = fn.session.price == null ? `Empty` : fn.session.price;
-        let location = fn.session.location == null ? `Empty` : fn.session.location;
-        let physicalQuality = fn.session.physicalQuality == null ? `Empty` : fn.session.physicalQuality;
-        let deliverySatisfaction = fn.session.locationDelivery == null ? `Empty` : fn.session.locationDelivery;
-        let trackShipmentQuality = fn.session.ratedQuality == null ? `Empty` : fn.session.ratedQuality;
-        //displaying result to user
-        yield fn.replyWithHTML(`<b>overall quality rate: ${trackShipmentQuality}</b>`);
-        yield fn.replyWithHTML(`<b>delivery satisfaction : ${deliverySatisfaction} </b>`);
-        yield fn.replyWithHTML(`<b>price of the product: ${price}</b>`);
-        yield fn.replyWithHTML(`<b>product physical quality ${physicalQuality}</b>`);
-        if (location == `Empty`) {
-            yield fn.replyWithHTML(`<b>there is no location</b>`);
-        }
-        else {
-            yield fn.replyWithLocation(location.latitude, location.longitude);
-        }
-        yield fn.replyWithHTML(`<b>Sent photos of the product</b>`);
-        if (fn.session.productPhoto) {
-            try {
-                for (var _b = __asyncValues(fn.session.productPhoto), _c; _c = yield _b.next(), !_c.done;) {
-                    let photo = _c.value;
-                    yield fn.replyWithPhoto(photo.file_id);
-                }
+        if (fn.session.length > 0) {
+            let price = fn.session.price == null ? `Empty` : fn.session.price;
+            let location = fn.session.location == null ? `Empty` : fn.session.location;
+            let physicalQuality = fn.session.physicalQuality == null ? `Empty` : fn.session.physicalQuality;
+            let deliverySatisfaction = fn.session.locationDelivery == null ? `Empty` : fn.session.locationDelivery;
+            let trackShipmentQuality = fn.session.ratedQuality == null ? `Empty` : fn.session.ratedQuality;
+            //displaying result to user
+            yield fn.replyWithHTML(`<b>overall quality rate: ${trackShipmentQuality}</b>`);
+            yield fn.replyWithHTML(`<b>delivery satisfaction : ${deliverySatisfaction} </b>`);
+            yield fn.replyWithHTML(`<b>price of the product: ${price}</b>`);
+            yield fn.replyWithHTML(`<b>product physical quality ${physicalQuality}</b>`);
+            if (location == `Empty`) {
+                yield fn.replyWithHTML(`<b>there is no location</b>`);
             }
-            catch (e_1_1) { e_1 = { error: e_1_1 }; }
-            finally {
+            else {
+                yield fn.replyWithLocation(location.latitude, location.longitude);
+            }
+            yield fn.replyWithHTML(`<b>Sent photos of the product</b>`);
+            if (fn.session.productPhoto) {
                 try {
-                    if (_c && !_c.done && (_a = _b.return)) yield _a.call(_b);
+                    for (var _b = __asyncValues(fn.session.productPhoto), _c; _c = yield _b.next(), !_c.done;) {
+                        let photo = _c.value;
+                        yield fn.replyWithPhoto(photo.file_id);
+                    }
                 }
-                finally { if (e_1) throw e_1.error; }
+                catch (e_1_1) { e_1 = { error: e_1_1 }; }
+                finally {
+                    try {
+                        if (_c && !_c.done && (_a = _b.return)) yield _a.call(_b);
+                    }
+                    finally { if (e_1) throw e_1.error; }
+                }
+            }
+            else {
+                yield fn.replyWithHTML(`<b>No Photos were found sorry 😓</b>`);
             }
         }
         else {
-            yield fn.replyWithHTML(`<b>No Photos were found sorry 😓</b>`);
+            yield fn.replyWithHTML(`<b>sorry there is nothing in the session please do new check and view it again</b>`);
         }
     });
 }
@@ -262,15 +264,28 @@ function getDataFromSession(fn) {
  */
 function clearSession(fn) {
     return __awaiter(this, void 0, void 0, function* () {
-        yield fn.replyWithMarkdown(`Removing session from database: ${JSON.stringify(fn.session)}`);
+        yield fn.replyWithMarkdown(`Removing session from database and all data gonna be deleted`);
         fn.session = null;
     });
 }
+/**
+ * @async
+ * @function
+ * @namespace indicateFinish
+ * @param fn telegram context
+ * @description indicates that the process of checking is done
+ */
 function indicateFinish(fn) {
     return __awaiter(this, void 0, void 0, function* () {
         yield fn.replyWithHTML(`<b>Great We Finished thank you for your feedback you can view the last operation you did by typing view session</b>`);
     });
 }
+/**
+ * @async
+ * @function
+ * @namespace initChoices
+ * @description preparing choices for quality question
+ */
 function initChoices() {
     var e_2, _a;
     return __awaiter(this, void 0, void 0, function* () {
@@ -293,6 +308,13 @@ function initChoices() {
         }
     });
 }
+/**
+ * @async
+ * @function
+ * @namespace optionalPhoto
+ * @param fn telegram context
+ * @description asks the user if he/she prefers to upload a photo of the product
+ */
 function optionalPhoto(fn) {
     return __awaiter(this, void 0, void 0, function* () {
         yield fn.replyWithHTML(`<b>Would like to provide a picture? if yes please send it and press okay if you would like to skip just press skip</b>`, Markup.inlineKeyboard([
@@ -301,6 +323,14 @@ function optionalPhoto(fn) {
         ]));
     });
 }
+/**
+ * @async
+ * @function
+ * @namespace optionalLocation
+ * @param fn telegram context
+ * @description asks the user if he/she prefers to upload a location of the delivery
+ *
+ */
 function optionalLocation(fn) {
     return __awaiter(this, void 0, void 0, function* () {
         yield fn.replyWithHTML(`<b>can you provide the location? you can skip or send location and click Okay to proceed</b>`, Markup.inlineKeyboard([
@@ -309,6 +339,13 @@ function optionalLocation(fn) {
         ]));
     });
 }
+/**
+ * @async
+ * @function
+ * @namespace optionalPrice
+ * @param fn telegram context
+ * @description asks the user to enter the price of the product
+ */
 function optionalPrice(fn) {
     return __awaiter(this, void 0, void 0, function* () {
         yield fn.replyWithHTML(`<b>What is the price of the product ?</b> type the price and press Continue to proceed next`, Markup.inlineKeyboard([

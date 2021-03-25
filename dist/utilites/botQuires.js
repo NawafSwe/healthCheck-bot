@@ -4,7 +4,7 @@
  * this module holds bot quires variables
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.mappingBotCommands = exports.BotQuires = exports.BotActions = exports.BotCommands = exports.AnswersQuires = void 0;
+exports.mappingBotCommands = exports.BotQuires = exports.BotCommands = exports.AnswersQuires = void 0;
 /**
  * @namespace AnswersQuires
  * @description contains all answer quires to user it as actions in the app
@@ -34,12 +34,6 @@ exports.BotCommands = {
     viewSession: { name: 'data' },
     clearSession: { name: 'clearData' },
     commands: { name: 'commands' }
-};
-exports.BotActions = {
-    uploadPhoto: { action: '', name: '' },
-    skipUploadPhoto: { action: '', name: '' },
-    uploadLocation: { action: '', name: '' },
-    skipLocation: { action: '', name: '' }
 };
 /**
  *@namespace BotQuires

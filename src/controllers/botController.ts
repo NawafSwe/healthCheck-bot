@@ -161,7 +161,7 @@ export async function initialStart() {
         }
 
         if (typeof fn.message.text === 'number') {
-            fn.session.price = parseFloat(fn.message.text);
+            fn.session.price = parseFloat(fn.message.text.trim());
         }
 
     });
@@ -223,32 +223,37 @@ async function askForLocation(fn: Context) {
  * @description getting stored data from session and send it to user
  */
 async function getDataFromSession(fn: any) {
+    if (fn.session.length > 0) {
+        let price = fn.session.price == null ? `Empty` : fn.session.price;
+        let location = fn.session.location == null ? `Empty` : fn.session.location;
+        let physicalQuality = fn.session.physicalQuality == null ? `Empty` : fn.session.physicalQuality;
+        let deliverySatisfaction = fn.session.locationDelivery == null ? `Empty` : fn.session.locationDelivery;
+        let trackShipmentQuality = fn.session.ratedQuality == null ? `Empty` : fn.session.ratedQuality;
+        //displaying result to user
+        await fn.replyWithHTML(`<b>overall quality rate: ${trackShipmentQuality}</b>`)
+        await fn.replyWithHTML(`<b>delivery satisfaction : ${deliverySatisfaction} </b>`);
+        await fn.replyWithHTML(`<b>price of the product: ${price}</b>`);
+        await fn.replyWithHTML(`<b>product physical quality ${physicalQuality}</b>`);
 
-    let price = fn.session.price == null ? `Empty` : fn.session.price;
-    let location = fn.session.location == null ? `Empty` : fn.session.location;
-    let physicalQuality = fn.session.physicalQuality == null ? `Empty` : fn.session.physicalQuality;
-    let deliverySatisfaction = fn.session.locationDelivery == null ? `Empty` : fn.session.locationDelivery;
-    let trackShipmentQuality = fn.session.ratedQuality == null ? `Empty` : fn.session.ratedQuality;
-    //displaying result to user
-    await fn.replyWithHTML(`<b>overall quality rate: ${trackShipmentQuality}</b>`)
-    await fn.replyWithHTML(`<b>delivery satisfaction : ${deliverySatisfaction} </b>`);
-    await fn.replyWithHTML(`<b>price of the product: ${price}</b>`);
-    await fn.replyWithHTML(`<b>product physical quality ${physicalQuality}</b>`);
+        if (location == `Empty`) {
+            await fn.replyWithHTML(`<b>there is no location</b>`);
 
-    if (location == `Empty`) {
-        await fn.replyWithHTML(`<b>there is no location</b>`);
-
-    } else {
-        await fn.replyWithLocation(location.latitude, location.longitude);
-    }
-    await fn.replyWithHTML(`<b>Sent photos of the product</b>`);
-    if (fn.session.productPhoto) {
-        for await(let photo of fn.session.productPhoto) {
-            await fn.replyWithPhoto(photo.file_id);
+        } else {
+            await fn.replyWithLocation(location.latitude, location.longitude);
         }
+        await fn.replyWithHTML(`<b>Sent photos of the product</b>`);
+        if (fn.session.productPhoto) {
+            for await(let photo of fn.session.productPhoto) {
+                await fn.replyWithPhoto(photo.file_id);
+            }
+        } else {
+            await fn.replyWithHTML(`<b>No Photos were found sorry 😓</b>`)
+        }
+
     } else {
-        await fn.replyWithHTML(`<b>No Photos were found sorry 😓</b>`)
+        await fn.replyWithHTML(`<b>sorry there is nothing in the session please do new check and view it again</b>`);
     }
+
 }
 
 /**
@@ -259,7 +264,7 @@ async function getDataFromSession(fn: any) {
  * @description clear all the data stored in the session
  */
 async function clearSession(fn: any) {
-    await fn.replyWithMarkdown(`Removing session from database: ${JSON.stringify(fn.session)}`)
+    await fn.replyWithMarkdown(`Removing session from database and all data gonna be deleted`);
     fn.session = null;
 }
 
@@ -333,3 +338,4 @@ async function optionalPrice(fn: Context) {
         Markup.button.callback(`continue`, 'continueWithPrice')
     ]));
 }
+
