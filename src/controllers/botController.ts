@@ -115,12 +115,15 @@ export async function initialStart() {
     });
 
     bot.action('uploadPhoto', async (fn: any) => {
-        await askForLocation(fn);
+        await optionalPrice(fn);
     });
 
     bot.action(`skipPhoto`, async (fn: any) => {
-        await askForLocation(fn);
-    })
+        await optionalPrice(fn);
+    });
+
+    // after uploading photo ask for price
+    bot.action(`continueWithPrice`, async (fn: any) => await askForLocation(fn));
     // if user had bad experience with the delivery location or not
     bot.action('yes', async (fn: any, next: NextFunction) => {
         fn.session.locationDelivery = `Yes`;
@@ -296,5 +299,7 @@ async function optionalLocation(fn: Context) {
 
 
 async function optionalPrice(fn: Context) {
-    await fn.replyWithHTML(`<b>What is the price of the product ?</b> type the price and press Continue to proceed next`, Markup.inlineKeyboard([]));
+    await fn.replyWithHTML(`<b>What is the price of the product ?</b> type the price and press Continue to proceed next`, Markup.inlineKeyboard([
+        Markup.button.callback(`continue`, 'continueWithPrice')
+    ]));
 }
